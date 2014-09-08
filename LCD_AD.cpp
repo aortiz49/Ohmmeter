@@ -8,6 +8,7 @@
 #define		CURSOR_DEC_SON		0X04	// Decrement cursor, shift on
 #define		CURSOR_INC_SOFF		0x05	// Increment cursor, shift off
 #define		CURSOR_INC_SON		0X06	// Increment cursor, shift on
+#define		BASE_CGRAM_ADDR		0x40	// 1st address in CGRAM
 /***********************************************************************/
 
 #include <avr/io.h>
@@ -26,13 +27,34 @@ void toggle_E();
 
 void lcd_init();
 
+void LCD_custom_char(const char custom[],uint16_t cgram_addr, uint16_t lcd_addr, int char_num );
+
+
 
 int main(void){
+	const char box[8] = {0x0, 0xe, 0x1b, 0x1e, 0x1c, 0x1e, 0x1f, 0xe};
+	const char ghost[8] = {0x0, 0xe, 0xe, 0x1f, 0x15, 0x1f, 0x1f, 0x11};
+	const char heart[8] = {0x0, 0xa, 0x1e, 0x1f, 0xe, 0x4, 0x0, 0x0};
+	const char sword[8] = {0xe, 0x1b, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f};
+	const char shield[8] ={0x4, 0xe, 0xe, 0xe, 0x1f, 0x1f, 0x0, 0x4};
+	const char dog[8] = {0xa, 0xa, 0x1f, 0x11, 0x11, 0xe, 0x4, 0x4};
+	const char song[8] = {0x3, 0x5, 0x9, 0x9, 0xb, 0xb, 0x18, 0x18};
+	const char hey[8] = {0x1f, 0x1f, 0x00, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f};
+	
 	DDRD |= 0xFF;
 	lcd_init();
-	lcd_msg("problem");
 	PORTD= 0xFF;
 	
+	LCD_custom_char(box,BASE_CGRAM_ADDR,0x80,0);
+	LCD_custom_char(ghost,BASE_CGRAM_ADDR+1*8,0x82,1);
+	LCD_custom_char(heart,BASE_CGRAM_ADDR+2*8,0x84,2);
+	LCD_custom_char(sword,BASE_CGRAM_ADDR+3*8,0x86,3);
+	LCD_custom_char(shield,BASE_CGRAM_ADDR+4*8,0x88,4);
+	LCD_custom_char(dog,BASE_CGRAM_ADDR+5*8,0x8a,5);
+	LCD_custom_char(song,BASE_CGRAM_ADDR+6*8,0x8c,6);
+	LCD_custom_char(hey,BASE_CGRAM_ADDR+7*8,0x8e,7);
+	lcd_command(0xc0);
+	lcd_msg("custom char gen!");
 	return 0;
 }
 
@@ -100,6 +122,17 @@ void lcd_msg(char msg[]){	// Display chars of string one a time until message is
 }
 
 
+void LCD_custom_char(const char custom[],uint16_t cgram_addr, uint16_t lcd_addr, int char_num ){
+	lcd_command(cgram_addr);  // Address where customized character is to be stored
+	for(int i = 0; i < 8; i++)
+		lcd_char(custom[i]);
+	
+	lcd_command(lcd_addr); // Location of LCD where the character is to be displayed (0x80 - 0x8F) row 1 and (0xC0 - 0xCF) row 2
+	// Sets RS = 1 and address 0-7
+	lcd_char(char_num);
+	_delay_ms(10);
+	
+}
 
 
 
