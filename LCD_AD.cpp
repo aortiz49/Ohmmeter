@@ -74,7 +74,7 @@ int main(void){
 	
 		diffValue = raw - (double)intValue;
 		otherDiffValue = (int)(diffValue*1000.0);
-		itoa(otherDiffValue,int_buffer2,10);
+		utoa(otherDiffValue,int_buffer2,10);
 		lcd_msg(int_buffer2);
 		lcd_command(0x87);
 		
@@ -82,10 +82,9 @@ int main(void){
 		lcd_command(0xC0); 
 
 				
-		volatile double coeff = .153/4.990;
+		volatile double coeff = raw/4.995;
 		volatile double temp = (coeff*RESISTOR_CONST)/(1-coeff);
-		utoa(temp,int_buffer3,10);
-		
+		utoa(temp,int_buffer3,10);		
 		lcd_msg(int_buffer3);
 	
 		
